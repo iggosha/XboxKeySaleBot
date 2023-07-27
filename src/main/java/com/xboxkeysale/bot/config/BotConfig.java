@@ -1,4 +1,4 @@
-package com.xboxkeysale.config;
+package com.xboxkeysale.bot.config;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,11 @@ import org.springframework.context.annotation.PropertySource;
 @NoArgsConstructor
 @PropertySource("/application.properties")
 public class BotConfig {
-    @Value("${bot.username}") String name;
-    @Value("${bot.token}") String token;
-    @Value("${bot.chatId}") String chatId;
+
+    @Value("${bot.username}")
+    String name;
+    @Value("${bot.token}")
+    String token;
+    @Value("${bot.chatId}")
+    String chatId;
 }

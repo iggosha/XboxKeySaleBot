@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class XboxKeySaleBotApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(XboxKeySaleBotApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(XboxKeySaleBotApplication.class, args);
+    }
 
 }

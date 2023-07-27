@@ -1,4 +1,4 @@
-package com.xboxkeysale.config;
+package com.xboxkeysale.bot.config;
 
 import com.xboxkeysale.bot.XKSBot;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Slf4j
 @Component
 public class Initializer {
+
     @Autowired
     XKSBot bot;
 
