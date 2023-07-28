@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.xboxkeysale.bot.commands.BotCommands;
+import com.xboxkeysale.bot.commands.Buttons;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -17,7 +19,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
 @Component
-public class XKSBot extends TelegramLongPollingBot {
+public class XKSBot extends TelegramLongPollingBot implements BotCommands {
 
     @Autowired
     private Environment environment;
@@ -31,58 +33,60 @@ public class XKSBot extends TelegramLongPollingBot {
         return environment.getProperty("bot.username");
     }
 
-
+    /**
+     * При получении сообщения-обновления
+     *
+     * @param update
+     */
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText().toLowerCase();
             long chatId = update.getMessage().getChatId();
-            switch (messageText) {
-                case "/start" -> sendStartMessage(chatId);
-                case "/help" -> sendHelpMessage(chatId);
-                case "цены" -> sendGamesMessage(chatId);
-                default -> findGameSendMessage(chatId, messageText);
+            String messageText;
+            if (update.hasMessage()) {
+                chatId = update.getMessage().getChatId();
+                if (update.getMessage().hasText()) {
+                    messageText = update.getMessage().getText().toLowerCase();
+                    switch (messageText) {
+                        case "цены" -> sendGamesMessage(chatId);
+                        case "/help" -> sendDefaultMessage(chatId, HELP_TEXT);
+                        case "/start" -> sendDefaultMessage(chatId, START_TEXT);
+                        default -> findGameSendMessage(chatId, messageText);
+                    }
+                }
+            } else if (update.hasCallbackQuery()) {
+                chatId = update.getCallbackQuery().getMessage().getChatId();
+                messageText = update.getCallbackQuery().getData();
+                switch (messageText) {
+                    case "/help" -> sendDefaultMessage(chatId, HELP_TEXT);
+                    case "/start" -> sendDefaultMessage(chatId, START_TEXT);
+                    default -> log.error("Ошибка при нажатии кнопки пользователем");
+                }
             }
         }
     }
 
-    private void sendStartMessage(long chatId) {
+    // help, start, find, prices
+    /**
+     * Отправляет стандартное сообщение (стартовое или со справочной информацией)
+     *
+     * @param chatId      в какой чат отправить сообщение
+     * @param defaultText текст стандартного сообщения
+     */
+    private void sendDefaultMessage(long chatId, String defaultText) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText("""
-                Привет! Я телеграм-бот канала @XboxKeySale.
-                Напишите:
-                "/help" - для получения справочной информации
-                *название_игры* - поиск игры и цены
-                "Цены" - информация обо всех имеющихся играх и их ценах
-                """);
+        message.setText(defaultText);
+        message.setReplyMarkup(Buttons.inlineMarkup());
         try {
             execute(message);
-            log.info("");
+            log.info("Отправлено сообщение со справочной информацией");
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void sendHelpMessage(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("""
-                "/help" - для получения справочной информации
-                *название_игры* - поиск игры и цены
-                Писать на английском (как в оригинале). Можно искать по первым словам - будут предложены возможные варианты
-                "Цены" - информация обо всех имеющихся играх и их ценах
-                Наш канал в Telegram с новостями - @XboxKeySale
-                """);
-        try {
-            execute(message);
-            log.info("");
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-
+/*
     private void sendPricesMessage(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -109,8 +113,14 @@ public class XKSBot extends TelegramLongPollingBot {
             log.error(e.getMessage());
         }
 
-    }
+    }*/
 
+    /**
+     * Отправляет список игр, подходящих под запрос
+     *
+     * @param chatId      в какой чат отправить сообщение
+     * @param messageText текст полученного сообщения
+     */
     private void findGameSendMessage(long chatId, String messageText) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
