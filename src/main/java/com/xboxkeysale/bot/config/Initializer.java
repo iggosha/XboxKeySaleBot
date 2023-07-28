@@ -8,21 +8,31 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.generics.LongPollingBot;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+/**
+ * Класс для инициализации бота
+ *
+ * @author Igor Golovkov
+ */
 @Slf4j
 @Component
 public class Initializer {
 
+    /**
+     * Бин бота
+     */
     @Autowired
-    XKSBot bot;
+    XKSBot xksBot;
 
+    /**
+     * Инициализация и подключение бота
+     */
     @EventListener({ContextRefreshedEvent.class})
     public void init() {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot((LongPollingBot) bot);
+            telegramBotsApi.registerBot(xksBot);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

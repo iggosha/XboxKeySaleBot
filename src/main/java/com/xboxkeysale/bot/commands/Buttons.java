@@ -5,11 +5,21 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.util.List;
 
+/**
+ * Класс, добавляющий кнопки в интерфейс
+ *
+ * @author Igor Golovkov
+ */
 public class Buttons {
 
     private static final InlineKeyboardButton START_BUTTON = new InlineKeyboardButton("/start");
     private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("/help");
 
+    /**
+     * Метод, добавляющий список кнопок в интерфейс
+     *
+     * @return Ряд кнопок
+     */
     public static InlineKeyboardMarkup inlineMarkup() {
         START_BUTTON.setCallbackData("/start");
         HELP_BUTTON.setCallbackData("/help");
